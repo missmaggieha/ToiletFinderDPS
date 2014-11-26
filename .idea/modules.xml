@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ToiletFinder.iml" filepath="$PROJECT_DIR$/ToiletFinder.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ToiletFinderDPS.iml" filepath="$PROJECT_DIR$/ToiletFinderDPS.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
