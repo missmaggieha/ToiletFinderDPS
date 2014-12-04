@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.IntentSender;
 import android.location.Criteria;
@@ -23,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -184,6 +186,15 @@ public class MainActivity extends FragmentActivity
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
             getMenuInflater().inflate(R.menu.main, menu);
+
+            // Associate searchable configuration with the SearchView
+            SearchManager searchManager =
+                    (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+            SearchView searchView =
+                    (SearchView) menu.findItem(R.id.search).getActionView();
+            searchView.setSearchableInfo(
+                    searchManager.getSearchableInfo(getComponentName()));
+
             restoreActionBar();
             return true;
         }
