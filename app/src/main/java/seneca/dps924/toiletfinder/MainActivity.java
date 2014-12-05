@@ -186,6 +186,9 @@ public class MainActivity extends FragmentActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
         mLocationClient.connect();
+
+
+
         handleIntent(getIntent());
     }
 
@@ -249,7 +252,7 @@ public class MainActivity extends FragmentActivity
 
 
             }
-        });
+        } );
         // Create an ArrayList of markers
         ArrayList<Marker> allMarkers = new ArrayList<Marker>();
 
@@ -305,6 +308,44 @@ public class MainActivity extends FragmentActivity
             searchView.setSearchableInfo(
                     searchManager.getSearchableInfo(getComponentName()));
 
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String s) {
+
+                    String location = s.toString();
+                    Geocoder mGeocoder = new Geocoder(getBaseContext());
+
+                    if(mGeocoder.isPresent()){
+                        try {
+                            List<Address> list = mGeocoder.getFromLocationName(location, 1);
+                            Address address = list.get(0);
+
+                            double lat = address.getLatitude();
+                            double lng = address.getLongitude();
+                            LatLng coordinate = new LatLng(lat, lng);
+
+                            CameraPosition cameraPosition = new CameraPosition.Builder()
+                                    .target(coordinate)      // Sets the center of the map to Mountain View
+                                    .zoom(17)                   // Sets the zoom
+                                    .bearing(0)                // Sets the orientation of the camera to north
+//                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                                    .build();                   // Creates a CameraPosition from the builder
+                            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+
+                        }
+                        catch(IOException e){
+                            e.printStackTrace();
+                        }
+                    }
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String s) {
+                    return false;
+                }
+            });
             restoreActionBar();
             return true;
         }
