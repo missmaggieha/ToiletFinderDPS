@@ -9,8 +9,11 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
@@ -42,6 +45,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
+import java.util.List;
+
 // TESTING 2
 public class MainActivity extends FragmentActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
@@ -64,20 +70,52 @@ public class MainActivity extends FragmentActivity
     private CharSequence mTitle;
     @Override
     public void onConnected(Bundle dataBundle) {
+        Intent intent = this.getIntent();
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+//            Toast toast = Toast.makeText(this, query, Toast.LENGTH_LONG);
+//            toast.show();
+            Geocoder mGeocoder = new Geocoder(this);
 
-        Location location = mLocationClient.getLastLocation();
-        double lat = location.getLatitude();
-        double lng = location.getLongitude();
-        LatLng coordinate = new LatLng(lat, lng);
+            if(mGeocoder.isPresent()){
+                try {
+                    List<Address> list = mGeocoder.getFromLocationName(query, 1);
+                    Address address = list.get(0);
 
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(coordinate)      // Sets the center of the map to Mountain View
-                .zoom(17)                   // Sets the zoom
-                .bearing(90)                // Sets the orientation of the camera to east
-                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-                .build();                   // Creates a CameraPosition from the builder
-        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                    double lat = address.getLatitude();
+                    double lng = address.getLongitude();
+                    LatLng coordinate = new LatLng(lat, lng);
 
+                    CameraPosition cameraPosition = new CameraPosition.Builder()
+                            .target(coordinate)      // Sets the center of the map to Mountain View
+                            .zoom(17)                   // Sets the zoom
+                            .bearing(90)                // Sets the orientation of the camera to east
+//                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                            .build();                   // Creates a CameraPosition from the builder
+                    map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+
+                }
+                catch(IOException e){
+                    e.printStackTrace();
+                }
+            }
+
+        }
+        else {
+            Location location = mLocationClient.getLastLocation();
+            double lat = location.getLatitude();
+            double lng = location.getLongitude();
+            LatLng coordinate = new LatLng(lat, lng);
+
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(coordinate)      // Sets the center of the map to Mountain View
+                    .zoom(17)                   // Sets the zoom
+                    .bearing(90)                // Sets the orientation of the camera to east
+//                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                    .build();                   // Creates a CameraPosition from the builder
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
     }
     @Override
     public void onDisconnected() {
@@ -119,7 +157,7 @@ public class MainActivity extends FragmentActivity
     protected void onStart() {
         super.onStart();
         // Connect the client.
-        mLocationClient.connect();
+
     }
     @Override
     protected void onStop() {
@@ -140,8 +178,49 @@ public class MainActivity extends FragmentActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+        mLocationClient.connect();
+        handleIntent(getIntent());
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+//            Toast toast = Toast.makeText(this, query, Toast.LENGTH_LONG);
+//            toast.show();
+            Geocoder mGeocoder = new Geocoder(this);
+
+            if(mGeocoder.isPresent()){
+               try {
+                   List<Address> list = mGeocoder.getFromLocationName(query, 1);
+                   Address address = list.get(0);
+
+                   double lat = address.getLatitude();
+                   double lng = address.getLongitude();
+                   LatLng coordinate = new LatLng(lat, lng);
+
+                   CameraPosition cameraPosition = new CameraPosition.Builder()
+                           .target(coordinate)      // Sets the center of the map to Mountain View
+                           .zoom(17)                   // Sets the zoom
+                           .bearing(90)                // Sets the orientation of the camera to east
+//                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                           .build();                   // Creates a CameraPosition from the builder
+                   map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+
+               }
+               catch(IOException e){
+                   e.printStackTrace();
+               }
+            }
+
+        }
+    }
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
