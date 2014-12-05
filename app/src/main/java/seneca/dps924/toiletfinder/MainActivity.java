@@ -43,9 +43,11 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 // TESTING 2
@@ -59,6 +61,7 @@ public class MainActivity extends FragmentActivity
     private GoogleMap map;
     private final static int
             CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private ArrayList<LocationsDB> myDB;
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -89,7 +92,7 @@ public class MainActivity extends FragmentActivity
                     CameraPosition cameraPosition = new CameraPosition.Builder()
                             .target(coordinate)      // Sets the center of the map to Mountain View
                             .zoom(17)                   // Sets the zoom
-                            .bearing(90)                // Sets the orientation of the camera to east
+                            .bearing(0)                // Sets the orientation of the camera to north
 //                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
                             .build();                   // Creates a CameraPosition from the builder
                     map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
@@ -111,7 +114,7 @@ public class MainActivity extends FragmentActivity
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(coordinate)      // Sets the center of the map to Mountain View
                     .zoom(17)                   // Sets the zoom
-                    .bearing(90)                // Sets the orientation of the camera to east
+                    .bearing(0)                // Sets the orientation of the camera to north
 //                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
                     .build();                   // Creates a CameraPosition from the builder
             map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
@@ -174,6 +177,10 @@ public class MainActivity extends FragmentActivity
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
+
+
+
+
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
@@ -229,10 +236,34 @@ public class MainActivity extends FragmentActivity
         mMapFragment = (MapFragment)fragmentManager.findFragmentById(R.id.map);
         map = mMapFragment.getMap();
 
+
+        myDB = LocationsDB.createDB();
         map.setMyLocationEnabled(true);
         mLocationClient = new LocationClient(this,this, this);
+        map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+
+                startActivity(new Intent(getBaseContext(), DetailsActivity.class));
 
 
+            }
+        });
+        // Create an ArrayList of markers
+        ArrayList<Marker> allMarkers = new ArrayList<Marker>();
+
+        // Loop through array of locations and add markers
+        for(int i = 0; i < myDB.size(); i++) {
+
+            allMarkers.add(map.addMarker(new MarkerOptions()
+                                    .position(myDB.get(i).name)
+                                    .title(myDB.get(i).title)
+                                    .snippet(myDB.get(i).snippet)
+                                    .flat(true)
+                    )
+            );
+        }
 
     }
 
